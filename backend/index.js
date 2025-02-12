@@ -1,5 +1,16 @@
 import express from "express";
-
+import dotnev from "dotenv"; 
+import { connectDB } from "./db/connectDB.js";
+import authRoutes from "./routes/auth.route.js";
+dotnev.config();
 const app = express();
-app.get("/", (req, res) => res.send("Hello from the yohannes !"));
-app.listen(3000, () => console.log("Server started on port 3000"));
+const PORT = process.env.PORT || 5000;
+app.use(express.json());
+app.use("/api/auth",authRoutes);
+app.listen(5000, () => {
+    connectDB(); 
+    console.log("Server is running on port ",PORT);
+}
+
+);
+// uUFnBfPj0MMIsdnG
