@@ -38,13 +38,15 @@ export const signup = async (req, res) => {
         // Generate token and set cookies
         generateTokenAndSetCokies(res, user._id);
 
-        // Send the success response
+        // Send the success response with explicit inclusion of verificationToken and verificationTokenExpiryAt
         res.status(201).json({
             success: true,
             message: "User created successfully",
             user: {
-                ...user._doc, // Corrected: Use 'user' instead of 'newUser'
-                password: undefined // Exclude the password field
+                ...user._doc, // Spread all fields from the user document
+                password: undefined, // Exclude the password field
+                verificationToken: user.verificationToken, // Explicitly include verificationToken
+                verificationTokenExpiryAt: user.verificationTokenExpiryAt // Explicitly include verificationTokenExpiryAt
             }
         });
     } catch (error) {
