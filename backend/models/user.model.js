@@ -19,5 +19,5 @@ name:{type:String,
   verficationToken:String,
 verficationTokenExpiryAt:Date
 },{timestamps:true});
-
+ 
 export const User = mongoose.model("User",userSchema);
