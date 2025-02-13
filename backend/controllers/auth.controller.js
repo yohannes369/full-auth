@@ -37,7 +37,7 @@ export const signup = async (req, res) => {
 
         // Generate token and set cookies
         generateTokenAndSetCokies(res, user._id);
-        sendVerificationEmail(user.email, verificationToken);
+       await sendVerificationEmail(user.email, verificationToken);
 
         // Send the success response with explicit inclusion of verificationToken and verificationTokenExpiryAt
         res.status(201).json({
