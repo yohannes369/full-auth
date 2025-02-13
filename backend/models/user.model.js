@@ -20,4 +20,4 @@ name:{type:String,
 verficationTokenExpiryAt:Date
 },{timestamps:true});
 
-export default mongoose.model("User",userSchema);
+export const User = mongoose.model("User",userSchema);

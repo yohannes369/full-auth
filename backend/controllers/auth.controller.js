@@ -1,40 +1,46 @@
-import {User}  from "../models/user.model.js";
+import {User} from "../models/user.model.js";
 import bcrypt from "bcrypt";
-import { generateverficationCode } from "../utils/generateverificationcode.js";
-export const signup =async (req,res) =>{
-    const {email,password,name} = req.body;
-    try{
-        if(!email || !password || !name){
+   
+import { generateTokenAndSetCokies } from "../utils/generateTokenAndSetCokies.js";
+
+export const signup = async (req, res) => {
+    const { name, email, password } = req.body;
+    try {
+        if (!name || !email || !password) {
             throw new Error("All fields are required");
-
-}     
-const userAlreadyExists = await User.findOne({email});
-
-if(userAlreadyExists){
-    return res.status(400).json({sucess:false, message:"User already exists"});
-   }
-    caches(error(){
-        res.status(400).json({sucess:false, message:error.message});
-    })
-    const hashedPassword = await bcrypt.hash(password,10);
-    const verficationToken = generateverficationCode();
-    const user = new User({
+        }
+        const userAlreadyExists = await user.findOne({ email });
+        if (userAlreadyExists) {
+            return res.status(400).json({ success: false, message: "User already exists" });
+        }
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
+        const newUser = new user({
+            email,
+            password: hashedPassword,
+            name,
+            verificationToken,
+            verificationTokenExpiryAt: Date.now() + 24 * 60 * 60 * 1000
+        });
+        await newUser.save();
         
-        email,
-        name,
-        verficationToken,
-        verficationTokenExpiryAt:Date.now() +24 * 60 * 60 * 1000,
-        password:hashedPassword
-    })
-    await user.save();
-    // jwt
-    generatetokenandsetcookie(res,user._id);
-    }
-    );
-    )
+        generateTokenAndSetCookies(res, user._id);
+        res.status(201).json({
+            success: true,
+            message: "User created successfully",
+            user: {
+                ...newUser._doc,
+                password: undefined
+            }
+        });
 
- export const login = (req, res) => 
+    } catch (error) {
+        res.status(400).json({ success: false, message: error.message });
+    }
+};
+
+export const login = (req, res) => 
     res.send(" it is login route ");
- export const logout = (req, res) => 
-    res.send(" it is logout route");
- 
+
+export const logout = (req, res) => 
+    res.send(" it is logout route ");

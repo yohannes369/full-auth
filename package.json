@@ -4,7 +4,7 @@
   "description": "",
   "main": "backend/index.js",
   "scripts": {
-   "dev": "nodemon backend/index.js"
+    "dev": "nodemon backend/index.js"
   },
   "repository": {
     "type": "git",
@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/yohannes369/full-auth#readme",
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.7",
     "crypto": "^1.0.1",
