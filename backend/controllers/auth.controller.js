@@ -56,5 +56,14 @@ export const signup = async (req, res) => {
 export const login = (req, res) => 
     res.send("It is the login route");
 
+/*************  ✨ Codeium Command ⭐  *************/
+/**
+ * Logs out the user by clearing the authentication token from the cookies.
+ * 
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object used to send the response.
+ */
+
+/******  40d29aa1-f50c-4abd-a573-ceda03aa85b3  *******/
 export const logout = (req, res) => 
     res.send("It is the logout route");
