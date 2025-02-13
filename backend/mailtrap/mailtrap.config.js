@@ -1,19 +1,17 @@
-# full-auth
-vs code grate icon
 import { MailtrapClient } from "mailtrap";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-const TOKEN = "46a798172163ec4b4c84082ac71799da";
-const ENDPOINT = "https://api.mailtrap.io/";
+const TOKEN = process.env.MAILTRAP_TOKEN;
+const ENDPOINT = process.env.MAILTRAP_ENDPOINT;
 const client = new MailtrapClient({
   token: TOKEN,
 });
 
 const sender = {
   email: "hello@demomailtrap.com",
-  name: "Mailtrap Test",
+  name: "yohannes yeneakal",
 };
 const recipients = [
   {
