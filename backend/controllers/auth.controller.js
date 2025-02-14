@@ -1,5 +1,5 @@
 import { User } from "../models/user.model.js";
-import bcrypt from "bcrypt";
+import bcryptjs from "bcryptjs";
 import { generateTokenAndSetCokies } from "../utils/generateTokenAndSetCokies.js";
 import { sendVerificationEmail, sendWelcomeEmail } from "../mailtrap/emails.js"; // Ensure this line is present
 
@@ -19,7 +19,7 @@ export const signup = async (req, res) => {
         }
 
         // Hash the password
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcryptjs.hash(password, 10);
 
         // Generate verification token
         const verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
@@ -91,7 +91,52 @@ export const verifyEmail = async (req, res) => {
 };
 
 // Other routes
-export const login = (req, res) => res.send("It is the login route");
+export const login = async (req, res) => {
+    const { email, password } = req.body;
+    try {
+        if (!email || !password) {
+            throw new Error("Email and password are required");
+        }
+
+        // Find the user and explicitly select the password field
+        const user = await User.findOne({ email }).select('+password');
+        if (!user) {
+            return res.status(404).json({ success: false, message: "Invalid credentials" });
+        }
+
+        // Check if user.password exists
+        if (!user.password) {
+            return res.status(400).json({ success: false, message: "User password not found" });
+        }
+
+        // Compare the provided password with the hashed password in the database
+        const isPasswordValid = await bcryptjs.compare(password, user.password);
+        if (!isPasswordValid) {
+            return res.status(400).json({ success: false, message: "Invalid credentials" });
+        }
+
+        // Generate token and set cookies
+        generateTokenAndSetCokies(res, user._id);
+
+        // Update the last login time
+        user.lastloginAt = new Date();
+        await user.save();
+
+        // Return success response
+        res.status(200).json({
+            success: true,
+            message: "Login successful",
+            user: {
+                ...user._doc,
+                password: undefined, // Exclude the password from the response
+            },
+        });
+
+    } catch (error) {
+        console.error("Error logging in:", error);
+        res.status(400).json({ success: false, message: error.message });
+    }
+};
 export const logout = async (req, res) => {
     res.clearCookie("token");
     res.status(200).json({ success: true, message: "Logged out successfully" });
