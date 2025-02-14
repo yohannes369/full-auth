@@ -198,4 +198,40 @@ export const forgotPassword = async (req, res) => {
 		console.log("Error in forgotPassword ", error);
 		res.status(400).json({ success: false, message: error.message });
 	}
+};export const resetpassword = async (req, res) => {
+    try {
+        const { token } = req.params;
+        const { password } = req.body;
+
+        console.log("Received reset token:", token);
+
+        const user = await User.findOne({
+            resetPasswordToken: token,
+            resetPasswordTokenExpiryAt: { $gt: Date.now() },
+        });
+
+        if (!user) {
+            console.log("No user found or token expired.");
+            return res.status(400).json({ success: false, message: "Invalid or expired token" });
+        }
+        
+        if (!password) {
+            return res.status(400).json({ success: false, message: "Password is required" });
+        }
+
+        console.log("User found:", user.email);
+
+        const hashedPassword = await bcryptjs.hash(password, 10);
+        user.password = hashedPassword;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordTokenExpiryAt = undefined;
+        await user.save();
+
+        console.log("Password reset successful for:", user.email);
+
+        res.status(200).json({ success: true, message: "Password reset successful" });
+    } catch (error) {
+        console.log("Error in resetpassword:", error);
+        res.status(400).json({ success: false, message: error.message });
+    }
 };
