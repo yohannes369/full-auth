@@ -92,4 +92,7 @@ export const verifyEmail = async (req, res) => {
 
 // Other routes
 export const login = (req, res) => res.send("It is the login route");
-export const logout = (req, res) => res.send("It is the logout route");
+export const logout = async (req, res) => {
+    res.clearCookie("token");
+    res.status(200).json({ success: true, message: "Logged out successfully" });
+}
