@@ -2,7 +2,7 @@ import { User } from "../models/user.model.js";
 import bcryptjs from "bcryptjs";
 import crypto from "crypto";
 import { generateTokenAndSetCokies } from "../utils/generateTokenAndSetCokies.js";
-import { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail } from "../mailtrap/emails.js"; // Ensure this line is present
+import { sendVerificationEmail, sendWelcomeEmail,sendResetSuccessEmail ,sendPasswordResetEmail } from "../mailtrap/emails.js"; // Ensure this line is present
 
 export const signup = async (req, res) => {
     const { email, password, name } = req.body;
@@ -198,40 +198,45 @@ export const forgotPassword = async (req, res) => {
 		console.log("Error in forgotPassword ", error);
 		res.status(400).json({ success: false, message: error.message });
 	}
-};export const resetpassword = async (req, res) => {
+};
+
+export const resetPassword = async (req, res) => {
+    const { token } = req.params;
+    const { password } = req.body;
+
     try {
-        const { token } = req.params;
-        const { password } = req.body;
-
-        console.log("Received reset token:", token);
-
+        // Find the user with the valid reset token
         const user = await User.findOne({
             resetPasswordToken: token,
             resetPasswordTokenExpiryAt: { $gt: Date.now() },
         });
 
         if (!user) {
-            console.log("No user found or token expired.");
             return res.status(400).json({ success: false, message: "Invalid or expired token" });
         }
-        
-        if (!password) {
-            return res.status(400).json({ success: false, message: "Password is required" });
-        }
 
-        console.log("User found:", user.email);
-
+        // Hash the new password
         const hashedPassword = await bcryptjs.hash(password, 10);
+
+        // Update the user's password and clear the reset token fields
         user.password = hashedPassword;
         user.resetPasswordToken = undefined;
         user.resetPasswordTokenExpiryAt = undefined;
         await user.save();
 
-        console.log("Password reset successful for:", user.email);
+        // Send a password reset success email
+        try {
+            await sendResetSuccessEmail(user.email);
+            console.log("Password reset success email sent to:", user.email);
+        } catch (emailError) {
+            console.error("Failed to send password reset success email:", emailError);
+            // Even if the email fails, the password reset is still successful
+        }
 
+        // Respond with success
         res.status(200).json({ success: true, message: "Password reset successful" });
     } catch (error) {
-        console.log("Error in resetpassword:", error);
-        res.status(400).json({ success: false, message: error.message });
+        console.error("Error in resetPassword:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
