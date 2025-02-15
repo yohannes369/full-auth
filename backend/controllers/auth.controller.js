@@ -200,43 +200,38 @@ export const forgotPassword = async (req, res) => {
 	}
 };
 
-export const resetPassword = async (req, res) => {
+// 
+export const restPassword = async (req, res) => {    
     const { token } = req.params;
     const { password } = req.body;
-
     try {
-        // Find the user with the valid reset token
         const user = await User.findOne({
             resetPasswordToken: token,
             resetPasswordTokenExpiryAt: { $gt: Date.now() },
         });
 
-        if (!user) {
+        if (!user) {            
             return res.status(400).json({ success: false, message: "Invalid or expired token" });
-        }
+        }    
 
-        // Hash the new password
         const hashedPassword = await bcryptjs.hash(password, 10);
-
-        // Update the user's password and clear the reset token fields
         user.password = hashedPassword;
         user.resetPasswordToken = undefined;
         user.resetPasswordTokenExpiryAt = undefined;
         await user.save();
 
-        // Send a password reset success email
-        try {
-            await sendResetSuccessEmail(user.email);
-            console.log("Password reset success email sent to:", user.email);
-        } catch (emailError) {
-            console.error("Failed to send password reset success email:", emailError);
-            // Even if the email fails, the password reset is still successful
-        }
+        // Capture the email response which includes the message IDs
+        const emailResponse = await sendResetSuccessEmail(user.email);
+        console.log(`Password reset success email sent to: ${user.email}`);
 
-        // Respond with success
-        res.status(200).json({ success: true, message: "Password reset successful" });
+        // Optionally, include the message IDs in the final API response
+        res.status(200).json({ 
+            success: true, 
+            message: "Password reset successful",
+            emailResponse: emailResponse // Contains message_ids from Mailtrap
+        });    
     } catch (error) {
-        console.error("Error in resetPassword:", error);
-        res.status(500).json({ success: false, message: "Internal server error" });
+        console.error("Error in resetpassword:", error);
+        res.status(400).json({ success: false, message: error.message });
     }
 };
