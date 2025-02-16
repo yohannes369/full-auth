@@ -32,4 +32,4 @@ client
   .then(console.log, console.error);
   npm install -D tailwindcss postcss autoprefixer
   npx tailwindcss init -p
-dffwwwewew
+dffwwwewewrrr
