@@ -30,3 +30,5 @@ client
     category: "Integration Test",
   })
   .then(console.log, console.error);
+  npm install -D tailwindcss postcss autoprefixer
+  npx tailwindcss init -p
