@@ -36,7 +36,7 @@ const LoginPage = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="flex items-center justify-center min-h-screen bg-gray-900"
+      className="flex items-center justify-center min-h-screen bg-green-900"
     >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
