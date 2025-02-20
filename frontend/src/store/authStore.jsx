@@ -2,10 +2,7 @@ import { create } from "zustand";
 import axios from "axios";
 
 // Set base API URL dynamically based on environment
-const API_URL =
-  import.meta.env.VITE_APP_ENV === "production"
-    ? "/api/auth" // Adjust this for your production setup
-    : "http://localhost:5000/api/auth";
+const API_URL = "http://localhost:5000/api/auth";
 
 // Enable cookies for cross-origin requests if needed
 axios.defaults.withCredentials = true;
@@ -16,8 +13,7 @@ const makeRequest = async (method, url, data = null) => {
     const response = await axios[method](url, data);
     return { success: true, data: response.data };
   } catch (error) {
-    const errorMessage =
-      error.response?.data?.message || "An unexpected error occurred";
+    const errorMessage = error.response?.data?.message || "An unexpected error occurred";
     return { success: false, error: errorMessage };
   }
 };
